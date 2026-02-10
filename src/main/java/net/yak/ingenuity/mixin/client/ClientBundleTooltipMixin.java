@@ -21,11 +21,11 @@ public abstract class ClientBundleTooltipMixin {
         if (resultStack.getItem() instanceof PipeBombItem) {
             int count = resultStack.getCount();
             int playerAge = Minecraft.getInstance().player.tickCount;
-            if ((IngenuityClient.trackedTick != playerAge && IngenuityClient.trackedTick + 1 != playerAge) || (IngenuityClient.arrayList == null || IngenuityClient.arrayList.size() < instance.size())) {
+            if ((IngenuityClient.trackedTick != playerAge && IngenuityClient.trackedTick + 1 != playerAge) || (IngenuityClient.stackList == null || IngenuityClient.stackList.size() < instance.size())) {
                 IngenuityClient.generateArray(instance.size());
             }
             IngenuityClient.trackedTick = playerAge;
-            resultStack = new ItemStack(BuiltInRegistries.ITEM.byId(IngenuityClient.arrayList.get(index)));
+            resultStack = IngenuityClient.stackList.get(index);
             resultStack.setCount(resultStack.isStackable() ? count : 1);
         }
         return resultStack;

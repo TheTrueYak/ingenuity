@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class IngenuityClient {
 
     public static int trackedTick = 0;
-    public static ArrayList<Integer> arrayList = new ArrayList<>();
+    public static ArrayList<ItemStack> stackList = new ArrayList<>();
 
     public IngenuityClient(ModContainer container) {
         //EntityRenderers.register(Ingenuity.PIPE_BOMB_ENTITY, ThrownItemRenderer::new);
@@ -31,12 +31,12 @@ public class IngenuityClient {
 
     public static void generateArray(int size) {
         RandomSource random = Minecraft.getInstance().player.getRandom();
-        if (arrayList == null) {
-            arrayList = new ArrayList<>();
+        if (stackList == null) {
+            stackList = new ArrayList<>();
         }
-        arrayList.clear();
+        else stackList.clear();
         for (int i = 0; i < size; i++) {
-            arrayList.add(random.nextInt(BuiltInRegistries.ITEM.size() - 10) + 1);
+            stackList.add(new ItemStack(BuiltInRegistries.ITEM.byId(random.nextInt(BuiltInRegistries.ITEM.size() - 10) + 1)));
         }
     }
 
