@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "ingenuity",
+	"version": "${version}",
+	"name": "Ingenuity",
+	"description": "I... E.... D. hm. I wonder what that stands fo-",
+	"authors": [
+		"TheTrueYak",
+		"Shloi"
+	],
+	"contact": {
+		"sources": "https://github.com/TheTrueYak/ingenuity"
+	},
+	"license": "ARR",
+	"icon": "assets/ingenuity/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.yak.ingenuity.Ingenuity"
+		],
+		"client": [
+			"net.yak.ingenuity.IngenuityClient"
+		],
+		"fabric-datagen": [
+			"net.yak.ingenuity.IngenuityDataGenerator"
+		]
+	},
+	"mixins": [
+		"ingenuity.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

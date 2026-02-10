@@ -2,24 +2,24 @@ package net.yak.ingenuity.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(Creeper.class)
-public abstract class CreeperEntityMixin extends Monster {
+@Mixin(CreeperEntity.class)
+public abstract class CreeperEntityMixin extends HostileEntity {
 
-    protected CreeperEntityMixin(EntityType<? extends Monster> entityType, Level level) {
-        super(entityType, level);
+    protected CreeperEntityMixin(EntityType<? extends HostileEntity> entityType, World world) {
+        super(entityType, world);
     }
 
-    @WrapOperation(method = "explodeCreeper", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;explode(Lnet/minecraft/world/entity/Entity;DDDFLnet/minecraft/world/level/Level$ExplosionInteraction;)Lnet/minecraft/world/level/Explosion;"))
-    private Explosion ingenuity$preventCreeperGriefing(Level instance, Entity source, double x, double y, double z, float radius, Level.ExplosionInteraction explosionInteraction, Operation<Explosion> original) {
-        return original.call(instance, source, x, y, z, radius, Level.ExplosionInteraction.TRIGGER);
+    @WrapOperation(method = "explode", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;createExplosion(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/world/World$ExplosionSourceType;)V"))
+    private void ingenuity$preventCreeperGriefing(ServerWorld instance, Entity source, double x, double y, double z, float radius, World.ExplosionSourceType explosionSourceType, Operation<Void> original) {
+        original.call(instance, source, x, y, z, radius, World.ExplosionSourceType.TRIGGER);
     }
 }

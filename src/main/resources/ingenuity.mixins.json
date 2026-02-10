@@ -1,27 +1,25 @@
 {
-  "required": true,
-  "package": "net.yak.ingenuity.mixin",
-  "compatibilityLevel": "JAVA_21",
-  "mixins": [
-    "CreeperEntityMixin",
-    "TridentItemMixin",
-    "ItemEntityMixin",
-    "DispenserBlockMixin",
-    "BundleItemMixin",
-    "ChestBlockEntityMixin",
-    "ChestBoatMixin",
-    "MinecartChestMixin",
-    "ItemStackMixin",
-    "BarrelBlockEntityMixin",
-    "PlayerMixin"
-  ],
-  "client": [
-    "client.ClientBundleTooltipMixin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
-  },
-  "overwrites": {
-    "requireAnnotations": true
-  }
+	"required": true,
+	"package": "net.yak.ingenuity.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+      "CreeperEntityMixin",
+      "ItemEntityMixin",
+      "DispenserBlockMixin",
+      "BundleItemMixin",
+      "ChestBlockEntityMixin",
+      "ChestBoatMixin",
+      "ChestMinecartEntityMixin",
+      "ItemStackMixin",
+      "BarrelBlockEntityMixin"
+    ],
+    "client": [
+      "client.ClientBundleTooltipMixin"
+    ],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
 }

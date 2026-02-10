@@ -2,33 +2,33 @@ package net.yak.ingenuity.mixin.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.BundleContents;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.tooltip.BundleTooltipComponent;
+import net.minecraft.item.ItemStack;
 import net.yak.ingenuity.IngenuityClient;
 import net.yak.ingenuity.item.PipeBombItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(ClientBundleTooltip.class)
-public abstract class ClientBundleTooltipMixin {
+import java.util.List;
 
-    @WrapOperation(method = "renderSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/component/BundleContents;getItemUnsafe(I)Lnet/minecraft/world/item/ItemStack;"))
-    private ItemStack ingenuity$renderFakeItem(BundleContents instance, int index, Operation<ItemStack> original) {
-        ItemStack resultStack = original.call(instance, index);
+@Mixin(BundleTooltipComponent.class)
+public abstract class ClientBundleTooltipMixin<E> {
+
+    @WrapOperation(method = "drawItem", at = @At(value = "INVOKE", target = "Ljava/util/List;get(I)Ljava/lang/Object;"))
+    private E ingenuity$renderFakeItem(List<ItemStack> instance, int index, Operation<E> original) {
+        ItemStack resultStack = (ItemStack) original.call(instance, index);
         if (resultStack.getItem() instanceof PipeBombItem) {
             int count = resultStack.getCount();
-            int playerAge = Minecraft.getInstance().player.tickCount;
-            if ((IngenuityClient.trackedTick != playerAge && IngenuityClient.trackedTick + 1 != playerAge) || (IngenuityClient.arrayList == null || IngenuityClient.arrayList.size() < instance.size())) {
+            int playerAge = MinecraftClient.getInstance().player.age;
+            if ((IngenuityClient.trackedTick != playerAge && IngenuityClient.trackedTick + 1 != playerAge) || (IngenuityClient.stackList == null || IngenuityClient.stackList.size() < instance.size())) {
                 IngenuityClient.generateArray(instance.size());
             }
             IngenuityClient.trackedTick = playerAge;
-            resultStack = new ItemStack(BuiltInRegistries.ITEM.byId(IngenuityClient.arrayList.get(index)));
+            resultStack = IngenuityClient.stackList.get(index);
             resultStack.setCount(resultStack.isStackable() ? count : 1);
         }
-        return resultStack;
+        return (E) resultStack;
     }
 
 }

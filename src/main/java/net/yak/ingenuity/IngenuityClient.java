@@ -1,43 +1,31 @@
 package net.yak.ingenuity;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.client.renderer.entity.ThrownItemRenderer;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.BundleContents;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.yak.ingenuity.item.PipeBombItem;
+import net.fabricmc.api.ClientModInitializer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.math.random.Random;
 
 import java.util.ArrayList;
 
-@Mod(value = Ingenuity.MODID, dist = Dist.CLIENT)
-//@EventBusSubscriber(modid = Ingenuity.MODID, value = Dist.CLIENT)
-public class IngenuityClient {
+public class IngenuityClient implements ClientModInitializer {
 
     public static int trackedTick = 0;
-    public static ArrayList<Integer> arrayList = new ArrayList<>();
+    public static ArrayList<ItemStack> stackList = new ArrayList<>();
 
-    public IngenuityClient(ModContainer container) {
-        //EntityRenderers.register(Ingenuity.PIPE_BOMB_ENTITY, ThrownItemRenderer::new);
+    @Override
+    public void onInitializeClient() {
 
     }
 
     public static void generateArray(int size) {
-        RandomSource random = Minecraft.getInstance().player.getRandom();
-        if (arrayList == null) {
-            arrayList = new ArrayList<>();
+        Random random = MinecraftClient.getInstance().player.getRandom();
+        if (stackList == null) {
+            stackList = new ArrayList<>();
         }
-        arrayList.clear();
+        else stackList.clear();
         for (int i = 0; i < size; i++) {
-            arrayList.add(random.nextInt(BuiltInRegistries.ITEM.size() - 10) + 1);
+            stackList.add(new ItemStack(Registries.ITEM.get(random.nextInt(Registries.ITEM.size() - 10) + 1)));
         }
     }
-
 }

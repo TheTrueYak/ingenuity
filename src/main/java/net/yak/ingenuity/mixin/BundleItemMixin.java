@@ -1,55 +1,39 @@
 package net.yak.ingenuity.mixin;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Cancellable;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.SlotAccess;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickAction;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.BundleItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.BundleContents;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.BundleContentsComponent;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.StackReference;
+import net.minecraft.item.BundleItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ClickType;
 import net.yak.ingenuity.Ingenuity;
 import net.yak.ingenuity.item.PipeBombItem;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BundleItem.class)
 public abstract class BundleItemMixin extends Item {
 
-    @Shadow protected abstract void playRemoveOneSound(Entity entity);
-
-    public BundleItemMixin(Properties properties) {
-        super(properties);
+    public BundleItemMixin(Settings settings) {
+        super(settings);
     }
 
-    /*@WrapOperation(method = "overrideStackedOnOther", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/Slot;safeInsert(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;"))
-    private ItemStack ingenuity$primePipeBombFromBundle1(Slot instance, ItemStack resultStack, Operation<ItemStack> original, ItemStack stack, Slot slot, ClickAction action, Player player) {
-        if (resultStack != null && resultStack.getItem() instanceof PipeBombItem && !resultStack.has(Ingenuity.PIPE_BOMB_PRIMED)) {
-            PipeBombItem.blockPrimePipeBombOnInteract(resultStack, player.level(), player.blockPosition(), false, 40);
-            //resultStack.set(Ingenuity.PIPE_BOMB_PRIMED, PipeBombItem.encodePrimedTime(player.level(), true));
-            //PipeBombItem.playIgniteSound(player);
-            return resultStack;
-        }
-        return original.call(instance, stack);
-    }*/
-
-    @WrapOperation(method = "overrideStackedOnOther", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/component/BundleContents$Mutable;removeOne()Lnet/minecraft/world/item/ItemStack;"))
-    private ItemStack ingenuity$primePipeBombFromBundle(BundleContents.Mutable instance, Operation<ItemStack> original, ItemStack stack, Slot slot, ClickAction action, Player player, @Cancellable CallbackInfoReturnable<ItemStack> cir) {
+    @WrapOperation(method = "onStackClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/component/type/BundleContentsComponent$Builder;removeSelected()Lnet/minecraft/item/ItemStack;"))
+    private ItemStack ingenuity$primePipeBombFromBundle(BundleContentsComponent.Builder instance, Operation<ItemStack> original, ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player, @Cancellable CallbackInfoReturnable<ItemStack> cir) {
         ItemStack resultStack = original.call(instance);
-        if (resultStack != null && resultStack.getItem() instanceof PipeBombItem && !resultStack.has(Ingenuity.PIPE_BOMB_PRIMED)) {
-            PipeBombItem.blockPrimePipeBombOnInteract(resultStack, player.level(), player.blockPosition(), false, -1, true);
-            stack.set(DataComponents.BUNDLE_CONTENTS, instance.toImmutable());
+        if (resultStack != null && resultStack.getItem() instanceof PipeBombItem && !resultStack.contains(Ingenuity.PIPE_BOMB_PRIMED)) {
+            PipeBombItem.blockPrimePipeBombOnInteract(resultStack, player.getEntityWorld(), player.getBlockPos(), false, -1, true);
+            stack.set(DataComponentTypes.BUNDLE_CONTENTS, instance.build());
             cir.cancel();
             return null;
             //cir.cancel();
@@ -59,13 +43,14 @@ public abstract class BundleItemMixin extends Item {
         return resultStack;
     }
 
-    @WrapOperation(method = "overrideOtherStackedOnMe", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/component/BundleContents$Mutable;removeOne()Lnet/minecraft/world/item/ItemStack;"))
-    private ItemStack ingenuity$primePipeBombFromBundle2(BundleContents.Mutable instance, Operation<ItemStack> original, ItemStack stack, ItemStack other, Slot slot, ClickAction action, Player player, SlotAccess access, @Cancellable CallbackInfoReturnable<ItemStack> cir) {
+    @WrapOperation(method = "onClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/component/type/BundleContentsComponent$Builder;removeSelected()Lnet/minecraft/item/ItemStack;"))
+    private ItemStack ingenuity$primePipeBombFromBundle2(BundleContentsComponent.Builder instance, Operation<ItemStack> original, ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference, @Cancellable CallbackInfoReturnable<ItemStack> cir) {
         ItemStack resultStack = original.call(instance);
-        if (resultStack != null && resultStack.getItem() instanceof PipeBombItem && !resultStack.has(Ingenuity.PIPE_BOMB_PRIMED)) {
-            PipeBombItem.blockPrimePipeBombOnInteract(resultStack, player.level(), player.blockPosition(), false, -1, true);
-            stack.set(DataComponents.BUNDLE_CONTENTS, instance.toImmutable());
-            playRemoveOneSound(player);
+        if (resultStack != null && resultStack.getItem() instanceof PipeBombItem && !resultStack.contains(Ingenuity.PIPE_BOMB_PRIMED)) {
+            PipeBombItem.blockPrimePipeBombOnInteract(resultStack, player.getEntityWorld(), player.getBlockPos(), false, -1, true);
+            stack.set(DataComponentTypes.BUNDLE_CONTENTS, instance.build());
+            //playRemoveOneSound(player);
+            player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, 0.8F, 0.8F + player.getEntityWorld().getRandom().nextFloat() * 0.4F);
             cir.cancel();
             return null;
             //cir.cancel();
@@ -75,28 +60,28 @@ public abstract class BundleItemMixin extends Item {
         return resultStack;
     }
 
-    @WrapMethod(method = "overrideStackedOnOther")
-    private boolean ingenuity$otherStackedReturnTrueWhenCancelled(ItemStack stack, Slot slot, ClickAction action, Player player, Operation<Boolean> original) {
-        boolean value = original.call(stack, slot, action, player);
-        if (stack.getCount() == 1 && action == ClickAction.SECONDARY) {
-            BundleContents bundlecontents = stack.getOrDefault(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY);
-            BundleContents.Mutable bundlecontents$mutable = new BundleContents.Mutable(bundlecontents);
-            ItemStack removedStack = bundlecontents$mutable.removeOne();
-            if (removedStack != null && removedStack.getItem() instanceof PipeBombItem && !removedStack.has(Ingenuity.PIPE_BOMB_PRIMED)) {
-                return true;
+    @WrapMethod(method = "onStackClicked")
+    private boolean ingenuity$otherStackedReturnTrueWhenCancelled(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player, Operation<Boolean> original) {
+        boolean value = original.call(stack, slot, clickType, player);
+        if (stack.getCount() == 1 && clickType == ClickType.RIGHT) {
+            BundleContentsComponent bundleContentsComponent = stack.getOrDefault(DataComponentTypes.BUNDLE_CONTENTS, BundleContentsComponent.DEFAULT);
+            BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(bundleContentsComponent);
+            ItemStack removedStack = builder.removeSelected();
+            if (removedStack != null && removedStack.getItem() instanceof PipeBombItem && !removedStack.contains(Ingenuity.PIPE_BOMB_PRIMED)) {
+                return true; // TODO: probably rewrite all
             }
         }
         return value;
     }
 
-    @WrapMethod(method = "overrideOtherStackedOnMe")
-    private boolean ingenuity$meStackedReturnTrueWhenCancelled(ItemStack stack, ItemStack other, Slot slot, ClickAction action, Player player, SlotAccess access, Operation<Boolean> original) {
-        boolean value = original.call(stack, other, slot, action, player, access);
-        if (stack.getCount() == 1 && action == ClickAction.SECONDARY && slot.allowModification(player)) {
-            BundleContents bundlecontents = stack.getOrDefault(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY);
-            BundleContents.Mutable bundlecontents$mutable = new BundleContents.Mutable(bundlecontents);
-            ItemStack removedStack = bundlecontents$mutable.removeOne();
-            if (removedStack != null && removedStack.getItem() instanceof PipeBombItem && !removedStack.has(Ingenuity.PIPE_BOMB_PRIMED)) {
+    @WrapMethod(method = "onClicked")
+    private boolean ingenuity$meStackedReturnTrueWhenCancelled(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference, Operation<Boolean> original) {
+        boolean value = original.call(stack, otherStack, slot, clickType, player, cursorStackReference);
+        if (stack.getCount() == 1 && clickType == ClickType.RIGHT && slot.canTakeItems(player)) {
+            BundleContentsComponent bundleContentsComponent = stack.getOrDefault(DataComponentTypes.BUNDLE_CONTENTS, BundleContentsComponent.DEFAULT);
+            BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(bundleContentsComponent);
+            ItemStack removedStack = builder.removeSelected();
+            if (removedStack != null && removedStack.getItem() instanceof PipeBombItem && !removedStack.contains(Ingenuity.PIPE_BOMB_PRIMED)) {
                 return true;
             }
         }
@@ -114,14 +99,13 @@ public abstract class BundleItemMixin extends Item {
         return original.call(instance, stack);
     }*/
 
-    @WrapOperation(method = "lambda$dropContents$0", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/entity/item/ItemEntity;"))
-    private static ItemEntity ingenuity$primePipeBombFromBundleEmpty(Player instance, ItemStack stack, boolean includeThrowerName, Operation<ItemEntity> original) {
-        if (stack != null && stack.getItem() instanceof PipeBombItem && !stack.has(Ingenuity.PIPE_BOMB_PRIMED)) {
-            //PipeBombItem.primePipeBombFromContainer(instance.level(), instance.blockPosition(), NonNullList.of(stack), false);
-            stack.set(Ingenuity.PIPE_BOMB_PRIMED, PipeBombItem.encodePrimedTime(instance.level(), true));
+    @WrapOperation(method = "dropFirstBundledStack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;dropItem(Lnet/minecraft/item/ItemStack;Z)Lnet/minecraft/entity/ItemEntity;"))
+    private ItemEntity ingenuity$primePipeBombFromBundleEmpty(PlayerEntity instance, ItemStack stack, boolean retainOwnership, Operation<ItemEntity> original) {
+        if (stack != null && stack.getItem() instanceof PipeBombItem && !stack.contains(Ingenuity.PIPE_BOMB_PRIMED)) {
+            stack.set(Ingenuity.PIPE_BOMB_PRIMED, PipeBombItem.encodePrimedTime(instance.getEntityWorld(), true));
             PipeBombItem.playIgniteSound(instance);
         }
-        return original.call(instance, stack, includeThrowerName);
+        return original.call(instance, stack, retainOwnership);
     }
 
 }

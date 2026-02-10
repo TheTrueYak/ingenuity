@@ -1,15 +1,16 @@
 package net.yak.ingenuity.mixin;
 
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.ChestBoat;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.yak.ingenuity.Ingenuity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.RideableInventory;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.vehicle.AbstractBoatEntity;
+import net.minecraft.entity.vehicle.AbstractChestBoatEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.world.World;
 import net.yak.ingenuity.item.PipeBombItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,28 +18,20 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ChestBoat.class)
-public abstract class ChestBoatMixin extends Boat {
+import java.util.function.Supplier;
 
-    @Shadow private NonNullList<ItemStack> itemStacks;
+@Mixin(AbstractChestBoatEntity.class)
+public abstract class ChestBoatMixin extends AbstractBoatEntity implements RideableInventory {
 
-    public ChestBoatMixin(EntityType<? extends Boat> entityType, Level level) {
-        super(entityType, level);
+    @Shadow private DefaultedList<ItemStack> inventory;
+
+    public ChestBoatMixin(EntityType<? extends AbstractBoatEntity> type, World world, Supplier<Item> itemSupplier) {
+        super(type, world, itemSupplier);
     }
 
-    @Inject(method = "interact", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/ChestBoat;gameEvent(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;)V"))
-    private void ingenuity$primePipeBombChestBoat(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
-        PipeBombItem.primePipeBombFromContainer(this.level(), this.blockPosition(), this.itemStacks, true);
-        /*int limit = 0;
-        for (ItemStack stack : this.itemStacks) {
-            if (stack.getItem() instanceof PipeBombItem) {
-                PipeBombItem.entityPrimePipeBombOnInteract(stack, this, true);
-                limit++;
-                if (limit >= Ingenuity.pipeBombContainerLimit) {
-                    break;
-                }
-            }
-        }*/
+    @Inject(method = "interact", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/vehicle/AbstractChestBoatEntity;emitGameEvent(Lnet/minecraft/registry/entry/RegistryEntry;Lnet/minecraft/entity/Entity;)V"))
+    private void ingenuity$primePipeBombChestBoat(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
+        PipeBombItem.primePipeBombFromContainer(this.getEntityWorld(), this.getBlockPos(), this.inventory, true);
     }
 
 }
