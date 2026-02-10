@@ -1,0 +1,8 @@
+{
+  "item.ingenuity.pipe_bomb": "Pipe Bomb",
+  "item.ingenuity.firebomb": "Firebomb",
+  "tooltip.ingenuity.pipe_bomb.timer": "Primed to explode in ",
+  "tooltip.ingenuity.pipe_bomb.seconds": " seconds",
+  "tooltip.ingenuity.pipe_bomb.second": " second"
+
+}
