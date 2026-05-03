@@ -2,9 +2,12 @@ package net.yak.ingenuity;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.item.property.bool.BooleanProperties;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.math.random.Random;
+import net.yak.ingenuity.client.FirebombProperty;
+import net.yak.ingenuity.client.PrimedProperty;
 
 import java.util.ArrayList;
 
@@ -15,6 +18,9 @@ public class IngenuityClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+
+        BooleanProperties.ID_MAPPER.put(PrimedProperty.ID, PrimedProperty.CODEC);
+        BooleanProperties.ID_MAPPER.put(FirebombProperty.ID, FirebombProperty.CODEC);
 
     }
 

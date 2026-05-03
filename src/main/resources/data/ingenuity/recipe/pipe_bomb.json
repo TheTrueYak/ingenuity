@@ -1,15 +1,9 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "item": "minecraft:tnt"
-    },
-    {
-      "item": "create:brass_sheet"
-    },
-    {
-      "item": "minecraft:string"
-    }
+    "minecraft:tnt",
+    "create:brass_sheet",
+    "minecraft:string"
   ],
   "result": {
     "id": "ingenuity:pipe_bomb",

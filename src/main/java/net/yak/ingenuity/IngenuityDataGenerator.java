@@ -8,6 +8,6 @@ public class IngenuityDataGenerator implements DataGeneratorEntrypoint {
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
 		FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
-		pack.addProvider(IngenuityModelProvider::new);
+		//pack.addProvider(IngenuityModelProvider::new);
 	}
 }
